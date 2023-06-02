@@ -1,78 +1,85 @@
-let numStrands = 16;
-let numRows = 24;
-let leftCordArray = [];
-let rightCordArray = [];
+let numStrands, numRows, rotateSlider;
 
-// function sketch(p) {
-setup = function () {
-  // randomSeed('true');
-  createCanvas(windowWidth / 2, windowHeight * 2, WEBGL);
+let leftCordArray = new Array(numRows);
+let rightCordArray = new Array(numRows);
+
+function setColors(pos) {
+  let array = [];
   for (let i = 0; i < numStrands / 2; i++) {
     const cp = createColorPicker(
       // random(['red', 'yellow', 'blue', 'orange', 'green', 'purple', 'pink'])
-      i % 8 === 1 ? 'black' : 'red'
+      i % 3 === 2 ? 'black' : 'red'
     );
-    cp.position(20, i * 30);
-    cp.input(function () {
-      leftCordArray[i] = this.value();
-    });
-    leftCordArray[i] = cp.color();
+
+    cp.position(pos === 'left' ? 20 : width - 100, i * 30 + 20);
+    array.push(cp);
   }
 
-  for (let i = 0; i < numStrands / 2; i++) {
-    const cp = createColorPicker(
-      // random(['red', 'yellow', 'blue', 'orange', 'green', 'purple', 'pink'])
-      i % 3 === 0 ? 'red' : 'black'
-    );
-    cp.position(100, i * 30);
-    cp.input(function () {
-      rightCordArray[i] = this.value();
-    });
-    rightCordArray[i] = cp.color();
-  }
+  return array;
+}
 
-  const strandNumInput = createInput(16, 'number');
-  strandNumInput.input(updateStrands);
+function setup() {
+  // set number of strands
+  const strandNumSlider = createSlider(4, 32, 16, 2);
+  strandNumSlider.input(updateStrands);
+  strandNumSlider.position(100, 20);
+  numStrands = strandNumSlider.value();
+  createP('# of cords').position(250, 6);
 
-  const rowNumInput = createInput(4, 'number');
-  rowNumInput.input(updateRows);
-};
+  // set number of rows
+  const rowNumSlider = createSlider(1, 24, numStrands);
+  rowNumSlider.input(updateRows);
+  rowNumSlider.position(100, 40);
+  numRows = rowNumSlider.value();
+  createP('# of rows').position(250, 25);
+
+  // set rotation speed
+  rotateSlider = createSlider(-1000, 1000, 0, 1000);
+  rotateSlider.position(100, 60);
+  createP('rotate plaits').position(250, 45);
+
+  randomSeed('whipit');
+  createCanvas(windowWidth / 2, windowHeight, WEBGL);
+
+  leftCordArray = setColors('left');
+  rightCordArray = setColors('right');
+}
 
 function updateStrands() {
-  if (this.value() > 1 && this.value() % 2 === 0) numStrands = this.value();
+  numStrands = this.value();
+  leftCordArray, (rightCordArray = []);
+  leftCordArray = setColors('left');
+  rightCordArray = setColors('right');
 }
 
 function updateRows() {
   numRows = this.value();
 }
-draw = function () {
+function draw() {
   const R = 75;
   const ARC = TWO_PI / numStrands;
 
   background(125);
   orbitControl();
+  fill(200);
+  cylinder(R / 2, 600, 24, 24, false, false);
 
-  translate(0, -windowHeight + 200);
   rotateX(-HALF_PI);
-  rotateZ(millis() / 1000);
-  stroke('white');
-  point(0, 0, 0);
-  noStroke();
+  rotateZ(rotateSlider.value() === 0 ? 0 : millis() / rotateSlider.value());
 
   for (let j = 0; j < numRows; j++) {
     for (let i = 0; i < numStrands / 2; i++) {
-      fill(j % 2 === 0 ? '#0000FF' : '#FF0000');
-
       const lon1 =
         j % 2 === 0 ? map(i, 0, numStrands / 2, -PI, PI) + ARC * j : map(i, 0, numStrands / 2, PI, -PI) + ARC * -j;
-      const lat1 = map(j, 0, numStrands, 0, 2 * R * PI);
+      const lat1 = map(j, 0, numStrands, -R * PI, R * PI);
 
       // diamond pattern
-      fill(j % 2 === 0 ? leftCordArray[i] : rightCordArray.at(-(1 + i)));
+
+      fill(j % 2 === 0 ? leftCordArray[i].value() : rightCordArray.at(-(1 + i)).value());
       generateDiamond(lat1, lon1, ARC, R);
     }
   }
-};
+}
 // }
 
 // export default sketch;
@@ -101,4 +108,8 @@ function generateDiamond(lat1, lon1, arc, R) {
   const z4 = lat2;
 
   quad(x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4);
+  stroke(75);
+  line(x1, y1, z1, x2, y2, z2);
+  line(x1, y1, z1, x4, y4, z4);
+  noStroke();
 }
