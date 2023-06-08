@@ -20,8 +20,8 @@ class Braid {
     for (let i = 0; i < this.numStrands / 2; i++) {
       leftArr.push(
         new Cord(
-          // 'pink',
-          color(random(255), random(125), random(125)),
+          i % this.numStrands === 0 || i % this.numStrands === 2 ? 'red' : 'black',
+          // color(random(255), random(125), random(125)),
           20,
           0 + i * 30 + 20
         )
@@ -31,8 +31,8 @@ class Braid {
     for (let i = 0; i < this.numStrands / 2; i++) {
       rightArr.push(
         new Cord(
-          // 'pink',
-          color(random(255), random(125), random(125)),
+          i % this.numStrands === 0 || i % this.numStrands === 2 ? 'red' : 'black',
+          // color(random(255), random(125), random(125)),
           width - 100,
           0 + i * 30 + 20
         )
