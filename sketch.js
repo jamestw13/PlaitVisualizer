@@ -1,4 +1,4 @@
-let rotateSlider, braid, swansea;
+let braid, rotateSlider;
 
 function setup() {
   createCanvas(windowWidth / 2, windowHeight, WEBGL);
@@ -8,25 +8,29 @@ function setup() {
   // set this.number of strands
   createP('# of cords').position(250, 6);
   const strandNumSlider = createSlider(4, 32, 16, 2);
-  strandNumSlider.input(e => braid.updateStrands(e.target.value));
+  strandNumSlider.input(e => braid.updateStrands(undefined, e.target.value));
   strandNumSlider.position(100, 20);
 
   // set this.number of rows
-  const rowNumSlider = createSlider(1, 24, braid.numStrands);
-  rowNumSlider.input(e => braid.updateRows(e.target.value));
+  const rowNumSlider = createSlider(1, 36, braid.numStrands);
+  rowNumSlider.input(e => braid.updateStrands(e.target.value, undefined));
   rowNumSlider.position(100, 40);
   createP('# of rows').position(250, 25);
 
   // set rotation speed
-  rotateSlider = createSlider(-2000, 2000, 2000, 1000);
+  rotateSlider = createSlider(-2000, 2000, 0, 1000);
   rotateSlider.position(100, 60);
   createP('rotate plaits').position(250, 45);
 
-  // // set density of weave
-  // const weaveSlider = createSlider(1, 3, 1);
-  // weaveSlider.input(e => (braid.pattern = parseInt(e.target.value)));
-  // weaveSlider.position(100, 80);
-  // createP('weave pattern').position(250, 65);
+  // set density of weave
+  const weaveSelect = createSelect();
+  weaveSelect.position(100, 80);
+  weaveSelect.option('Diamond', 'diamond');
+  weaveSelect.option('Under 2 Over 2', 'u2o2');
+  weaveSelect.option('Under 3 Over 3', 'u3o3');
+  weaveSelect.selected('u3o3');
+  weaveSelect.changed(e => (braid.pattern = e.target.value));
+  createP('weave pattern').position(250, 65);
 
   // //color random or not
   // const randomColor = createCheckbox('randomize color', false);
@@ -36,7 +40,7 @@ function setup() {
 
 function draw() {
   background(125);
-  orbitControl(2, 0, 0);
+  orbitControl(2, 0, 1);
 
   rotateY(rotateSlider.value() === 0 ? 0 : millis() / rotateSlider.value());
   braid.draw();

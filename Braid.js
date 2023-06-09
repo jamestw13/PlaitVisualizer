@@ -1,16 +1,16 @@
 class Braid {
-  constructor(numStrands = 16, numRows = 17) {
+  constructor(numStrands = 12, numRows = 17, pattern = 'u3o3') {
     randomSeed('a');
     this.numStrands = numStrands;
     const { leftArr, rightArr } = this.generateCords();
     this.leftCords = leftArr;
     this.rightCords = rightArr;
-
+    this.pattern = pattern;
     this.numRows = numRows;
     this.radius = 75;
     this.arc = TWO_PI / this.numStrands;
 
-    this.pattern = 1;
+    this.pattern;
 
     this.quadArray = this.generateQuads();
   }
@@ -20,7 +20,8 @@ class Braid {
     for (let i = 0; i < this.numStrands / 2; i++) {
       leftArr.push(
         new Cord(
-          i % this.numStrands === 0 || i % this.numStrands === 2 ? 'red' : 'black',
+          'red',
+          // i % this.numStrands === 0 || i % this.numStrands === 2 ? 'red' : 'black',
           // color(random(255), random(125), random(125)),
           20,
           0 + i * 30 + 20
@@ -31,7 +32,8 @@ class Braid {
     for (let i = 0; i < this.numStrands / 2; i++) {
       rightArr.push(
         new Cord(
-          i % this.numStrands === 0 || i % this.numStrands === 2 ? 'red' : 'black',
+          'black',
+          // i % this.numStrands === 0 || i % this.numStrands === 2 ? 'red' : 'black',
           // color(random(255), random(125), random(125)),
           width - 100,
           0 + i * 30 + 20
@@ -46,7 +48,7 @@ class Braid {
     for (let i = 0; i < this.numRows; i++) {
       const subArray = [];
       for (let j = 0; j < this.numStrands / 2; j++) {
-        const lat1 = map(i, 0, this.numStrands, -this.radius * PI, this.radius * PI);
+        const lat1 = map(i, 0, this.numStrands, -width / 2.5, -width / 2.5 + this.radius * TWO_PI);
         const lat2 = lat1 + this.arc * this.radius;
         const lat3 = lat1 + this.arc * 2 * this.radius;
 
@@ -94,9 +96,10 @@ class Braid {
     return array;
   }
 
-  updateStrands(num) {
-    this.numStrands = num;
-    this.arc = TWO_PI / num;
+  updateStrands(rows = this.numRows, strands = this.numStrands) {
+    this.numStrands = strands;
+    this.numRows = rows;
+    this.arc = TWO_PI / strands;
     this.leftCords = [];
     this.rightCords = [];
     const { leftArr, rightArr } = this.generateCords();
@@ -111,7 +114,7 @@ class Braid {
   draw() {
     for (let i = 0; i < this.quadArray.length; i++) {
       for (let j = 0; j < this.quadArray[i].length; j++) {
-        this.quadArray[i][j].draw(i % 2 === 0 ? 'left' : 'right');
+        this.quadArray[i][j].draw(this.pattern, i, j, this.numStrands);
       }
     }
   }
